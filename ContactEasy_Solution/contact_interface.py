@@ -71,7 +71,6 @@ class ContactInterface:
   def clear_inputs(self):
     self.name_input.value = ""
     self.phone_input.value = ""
-    self.search_input.value = ""
     self.msg.value = ""
 
   def show_message(self, message, color="black"):

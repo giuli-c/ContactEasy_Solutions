@@ -37,14 +37,16 @@ class ContactController:
         self.ui.clear_inputs()
 
     def search(self, b):
-        query = self.ui.search_input.value.strip()
-        results = self.model.search(query)
+        name = self.ui.name_input.value.strip()
+        phone = self.ui.phone_input.value.strip()
+        results = self.model.search(name, phone)
+
         with self.ui.output:
             clear_output()
             if results:
                 display(pd.DataFrame(results.items(), columns=["Nome", "Telefono"]))
             else:
-                print("Nessun contatto trovato.")
+                self.ui.show_message("Nessun contatto trovato.")
 
     def update(self, b):
         old_name = self.ui.name_input.value.strip()
