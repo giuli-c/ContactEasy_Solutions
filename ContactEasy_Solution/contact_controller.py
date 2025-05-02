@@ -20,6 +20,8 @@ class ContactController:
         self.ui.show_btn.on_click(self.show_all)
 
     def add(self, b):
+        clear_output()
+
         name = self.ui.name_input.value.strip()
         phone = self.ui.phone_input.value.strip()
         if name and phone:
@@ -28,12 +30,16 @@ class ContactController:
                 self.ui.show_message(msg)
         else:
             self.ui.show_message("Inserisci nome e telefono", color="red")
+
         self.ui.clear_inputs()
 
     def delete(self, b):
+        clear_output()
+
         name = self.ui.name_input.value.strip()
-        msg = self.model.delete_contact(name)
+        _,msg = self.model.delete_contact(name)
         self.ui.show_message(msg)
+
         self.ui.clear_inputs()
 
     def search(self, b):
@@ -49,10 +55,13 @@ class ContactController:
                 self.ui.show_message("Nessun contatto trovato.")
 
     def update(self, b):
+        clear_output()
+
         old_name = self.ui.name_input.value.strip()
         new_name = self.ui.name_input.value.strip()
+        old_phone = self.ui.phone_input.value.strip()
         new_phone = self.ui.phone_input.value.strip()
-        msg = self.model.update_contact(old_name, new_name, new_phone)
+        msg = self.model.update_contact(old_name, new_name, old_phone, new_phone)
         self.ui.show_message(msg)
         self.ui.clear_inputs()
 

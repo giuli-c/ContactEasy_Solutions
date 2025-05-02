@@ -70,11 +70,13 @@ class ContactManager:
     Prima elimina il contatto con nome e numero vecchi,
     poi aggiunge il nuovo nome e numero se la cancellazione è andata a buon fine.
     """
-    bresult,_ = self.delete_contact(old_name, old_phone)
+    bresult,strres = self.delete_contact(old_name, old_phone)
     
     if bresult:
         self.contacts[new_name] = new_phone
         return f"Contatto aggiornato."
+    else:
+        return strres
 
   def to_dataframe(self):
     """
