@@ -20,7 +20,7 @@ class ContactController:
         self.ui.show_btn.on_click(self.show_all)
 
     def add(self, b):
-        clear_output()
+        self.ui.clear_msg()
 
         name = self.ui.name_input.value.strip()
         phone = self.ui.phone_input.value.strip()
@@ -34,7 +34,7 @@ class ContactController:
         self.ui.clear_inputs()
 
     def delete(self, b):
-        clear_output()
+        self.ui.clear_msg()
 
         name = self.ui.name_input.value.strip()
         _,msg = self.model.delete_contact(name)
@@ -43,6 +43,8 @@ class ContactController:
         self.ui.clear_inputs()
 
     def search(self, b):
+        self.ui.clear_msg()
+
         name = self.ui.name_input.value.strip()
         phone = self.ui.phone_input.value.strip()
         results = self.model.search(name, phone)
@@ -55,7 +57,7 @@ class ContactController:
                 self.ui.show_message("Nessun contatto trovato.")
 
     def update(self, b):
-        clear_output()
+        self.ui.clear_msg()
 
         old_name = self.ui.name_input.value.strip()
         new_name = self.ui.name_input.value.strip()
@@ -66,6 +68,8 @@ class ContactController:
         self.ui.clear_inputs()
 
     def show_all(self, b):
+        self.ui.clear_msg()
+        
         df = self.model.to_dataframe()
         with self.ui.output:
             clear_output()
