@@ -65,9 +65,12 @@ class ContactManager:
     """
     results = {}
 
-    for n,p in self.contacts.items():
-       if (name.lower() and name.lower() in n.lower()) or (phone.strip() and phone.strip() in p.strip()):
-          results[n] = p
+    name = name.lower().strip()
+    phone = phone.strip()
+
+    for n, p in self.contacts.items():
+        if (name and name in n.lower().strip()) or (phone and phone in p):
+            results[n] = p
 
     return results
 
