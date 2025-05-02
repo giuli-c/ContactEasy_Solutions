@@ -41,7 +41,7 @@ class ContactController:
         _,msg = self.model.delete_contact(name, phone)
         self.ui.show_message(msg)
 
-        self.ui.clear_inputs()
+        #self.ui.clear_inputs()
 
     def search(self, b):
         self.ui.clear_msg()
@@ -66,7 +66,7 @@ class ContactController:
         new_phone = self.ui.phone_input.value.strip()
         msg = self.model.update_contact(old_name, new_name, old_phone, new_phone)
         self.ui.show_message(msg)
-        self.ui.clear_inputs()
+        #self.ui.clear_inputs()
 
     def show_all(self, b):
         self.ui.clear_msg()
