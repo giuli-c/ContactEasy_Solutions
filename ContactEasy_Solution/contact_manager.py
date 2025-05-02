@@ -25,7 +25,7 @@ class ContactManager:
           return f"Il contatto '{name}' associato al numero di telefono '{phone}' esiste già."
        elif name in dictres:
           return f"Il contatto '{name}' esiste già."
-       elif phone in dictres.values:      
+       elif phone in dictres.values():      
           key = next((k for k, v in dictres.items() if v == phone), None)
           return f"Il numero di telefono {phone} è già associato al nome '{key}' esiste già."
     
@@ -44,7 +44,7 @@ class ContactManager:
            strkey = name
         elif name and name in dictres and len(dictres) == 1:
            strkey = name
-        elif phone in dictres.values:
+        elif phone in dictres.values():
            key = next((k for k, v in dictres.items() if v == phone), None)
            strkey = key
         del self.contacts[strkey]

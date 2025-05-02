@@ -37,7 +37,8 @@ class ContactController:
         self.ui.clear_msg()
 
         name = self.ui.name_input.value.strip()
-        _,msg = self.model.delete_contact(name)
+        phone = self.ui.phone_input.value.strip()
+        _,msg = self.model.delete_contact(name, phone)
         self.ui.show_message(msg)
 
         self.ui.clear_inputs()
