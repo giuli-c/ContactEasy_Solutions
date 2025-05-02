@@ -36,19 +36,26 @@ class ContactManager:
     """
     strkey = ""
     dictres = self.search(name, phone)
-
+    
     if not dictres:
        return False, f"Contatto '{name}' non trovato."
-    else:
-        if name and phone and name in dictres and dictres[name]==phone:
-           strkey = name
-        elif name and name in dictres and len(dictres) == 1:
-           strkey = name
-        elif phone in dictres.values():
-           key = next((k for k, v in dictres.items() if v == phone), None)
-           strkey = key
+
+    if len(dictres) > 1:
+        return False, "Più contatti trovati. Specificare meglio nome e numero."
+
+    if name and phone and name in dictres and dictres[name]==phone:
+         strkey = name
+    elif name and name in dictres and len(dictres) == 1:
+         strkey = name
+    elif phone in dictres.values():
+         key = next((k for k, v in dictres.items() if v == phone), None)
+         strkey = key
+
+    if strkey:
         del self.contacts[strkey]
-        return True, f"Contatto '{strkey}' eliminato."    
+        return True, f"Contatto '{strkey}' eliminato."
+
+    return False, "Impossibile determinare quale contatto eliminare."    
   
   def search(self, name="", phone=""):
     """
