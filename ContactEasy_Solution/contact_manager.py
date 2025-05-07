@@ -64,9 +64,6 @@ class ContactManager:
     Restituisce un dizionario con tutti i risultati parziali o esatti.
     """
     results = {}
-    
-    print(f"old_name type: {type(name)} -> {name}")
-    print(f"old_phone type: {type(phone)} -> {phone}")
 
     name = name.lower().strip()
     phone = phone.strip()
