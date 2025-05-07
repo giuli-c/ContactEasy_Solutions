@@ -37,22 +37,27 @@ class ContactController:
         self.ui.clear_inputs()
 
     def delete(self, b):
-        self.ui.clear_msg()
+        try:
+            self.ui.clear_msg()
 
-        if self.modifycontact:            
-            name = self.modifycontact.keys()
-            phone = self.modifycontact.values()
-        else:
-            name = self.ui.name_input.value.strip()
-            phone = self.ui.phone_input.value.strip()
+            if self.modifycontact:            
+                if len(self.modifycontact) == 1:
+                    # Estraggo singolo nome e telefono
+                    name, phone = next(iter(self.modifycontact.items()))
+                else:
+                    self.ui.show_message("Più contatti trovati. Specifica meglio la ricerca.", color="red")
+                    return
+            else:
+                name = self.ui.name_input.value.strip()
+                phone = self.ui.phone_input.value.strip()
 
-        _,msg = self.model.delete_contact(name, phone)        
-        self.ui.show_message(msg)
+            _,msg = self.model.delete_contact(name, phone)        
+            self.ui.show_message(msg)
+        finally:
+            with self.ui.output:
+                clear_output()
 
-        with self.ui.output:
-            clear_output()
-
-        self.modifycontact = {}
+            self.modifycontact = {}
         #self.ui.clear_inputs()
 
     def search(self, b):      
@@ -75,23 +80,16 @@ class ContactController:
     def update(self, b):
         self.ui.clear_msg()
 
-        if self.modifycontact:            
-            name = self.modifycontact.keys()
-            phone = self.modifycontact.values()
+        if self.modifycontact and len(self.modifycontact) == 1:
+            # Estrai nome e telefono dal primo (unico) contatto
+            old_name, old_phone = next(iter(self.modifycontact.items()))
         else:
-            msg = "Ricercare un conttato valido."
+            self.ui.show_message("Ricercare un contatto valido.", color="red")
+            return
 
-        old_name = name
-        old_phone = phone
-        if not self.ui.name_input.value.strip():
-            new_name = name
-        else:
-            new_name = self.ui.name_input.value.strip()
-
-        if not self.ui.phone_input.value.strip():
-            new_phone = phone
-        else:
-            new_phone = self.ui.phone_input.value.strip()
+        # Nuovi valori presi dai campi input, altrimenti tieni i vecchi
+        new_name = self.ui.name_input.value.strip() or old_name
+        new_phone = self.ui.phone_input.value.strip() or old_phone
 
         msg = self.model.update_contact(old_name, new_name, old_phone, new_phone)
         
