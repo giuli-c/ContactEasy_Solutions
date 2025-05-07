@@ -91,14 +91,17 @@ class ContactController:
         new_name = self.ui.name_input.value.strip() or old_name
         new_phone = self.ui.phone_input.value.strip() or old_phone
 
-        msg = f"old_name type: {type(old_name)} -> {old_name}\n"
-        msg += f"old_phone type: {type(old_phone)} -> {old_phone}\n"
-        msg += f"old_name type: {type(new_name)} -> {new_name}\n"
-        msg += f"old_phone type: {type(new_phone)} -> {new_phone}\n"
+        with self.ui.output:
+            from IPython.display import clear_output
+            clear_output()
+            print(f"old_name type: {type(old_name)} -> {old_name}")
+            print(f"old_phone type: {type(old_phone)} -> {old_phone}")
+            print(f"new_name type: {type(new_name)} -> {new_name}")
+            print(f"new_phone type: {type(new_phone)} -> {new_phone}")
 
         #msg = self.model.update_contact(old_name, new_name, old_phone, new_phone)
         
-        self.ui.show_message(msg)
+        #self.ui.show_message(msg)
         with self.ui.output:
             clear_output()
 
