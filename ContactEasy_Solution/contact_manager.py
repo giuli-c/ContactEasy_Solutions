@@ -18,15 +18,15 @@ class ContactManager:
     
     if not dictres:
        self.contacts[name] = phone
-       return f"Contatto '{name}' aggiunto."
+       return f"Contatto '{name}' aggiunto.", "green"
     else:
        if name in dictres and dictres[name]==phone:
-          return f"Il contatto '{name}' associato al numero di telefono '{phone}' esiste già."
+          return f"Il contatto '{name}' associato al numero di telefono '{phone}' esiste già.", "red"
        elif name in dictres:
-          return f"Il contatto '{name}' esiste già."
+          return f"Il contatto '{name}' esiste già.", "red"
        elif phone in dictres.values():      
           key = next((k for k, v in dictres.items() if v == phone), None)
-          return f"Il numero di telefono {phone} è già associato al nome '{key}' esiste già."
+          return f"Il numero di telefono {phone} è già associato al nome '{key}' esiste già.", "red"
     
   def delete_contact(self, name, phone):
     """
@@ -38,15 +38,15 @@ class ContactManager:
     strkey = ""
     
     if name == "" and phone == "":
-        return False, "Specificare il contatto che si desidera eliminare."
+        return False, "Specificare il contatto che si desidera eliminare.", "yellow"
 
     dictres = self.search(name, phone)
 
     if not dictres:
-       return False, f"Contatto '{name or phone}' non trovato."
+       return False, f"Contatto '{name or phone}' non trovato.", "red"
 
     if len(dictres) > 1:
-        return False, "Più contatti trovati. Specificare nome o numero di telefono."
+        return False, "Più contatti trovati. Specificare nome o numero di telefono.", "yellow"
 
     # C'è un solo contatto e quindi lo recupero
     key, val = next(iter(dictres.items()))
@@ -55,10 +55,10 @@ class ContactManager:
     if (not name or name.lower() == key.lower()) and (not phone or phone == val):
         strkey = key
     else:
-        return False, "Impossibile determinare quale contatto eliminare."
+        return False, "Impossibile determinare quale contatto eliminare.", "red"
 
     del self.contacts[strkey]
-    return True, f"Contatto '{strkey}' eliminato."  
+    return True, f"Contatto '{strkey}' eliminato.", "green"
   
   def search(self, name="", phone=""):
     """
@@ -87,7 +87,7 @@ class ContactManager:
     
     if bresult:
         self.contacts[new_name] = new_phone
-        return f"Contatto aggiornato."
+        return f"Contatto aggiornato.", "green"
     else:
         return strres
 

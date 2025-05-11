@@ -33,8 +33,8 @@ class ContactController:
         phone = self.ui.phone_input.value.strip()
         if name and phone:
             if self.ui.validate_inputs():
-                msg = self.model.add_contact(name, phone)
-                self.ui.show_message(msg)
+                msg, color = self.model.add_contact(name, phone)
+                self.ui.show_message(msg, color=color)
         else:
             self.ui.show_message("Inserisci nome e telefono", color="red")
       finally:
@@ -56,8 +56,8 @@ class ContactController:
                 name = self.ui.name_input.value.strip()
                 phone = self.ui.phone_input.value.strip()
 
-            _,msg = self.model.delete_contact(name, phone)        
-            self.ui.show_message(msg)
+            _,msg,color = self.model.delete_contact(name, phone)        
+            self.ui.show_message(msg, color=color)
         finally:
             with self.ui.output:
                 clear_output()
@@ -84,7 +84,7 @@ class ContactController:
                 else:
                     self.ui.hide_modify_input()
             else:
-                self.ui.show_message("Nessun contatto trovato.")
+                self.ui.show_message("Nessun contatto trovato.", color="red")
 
     def update(self, b):
       try:
@@ -100,8 +100,8 @@ class ContactController:
         new_name = self.ui.new_name_input.value.strip() or old_name
         new_phone = self.ui.new_phone_input.value.strip() or old_phone
 
-        msg = self.model.update_contact(old_name, new_name, old_phone, new_phone)
-        self.ui.show_message(msg)
+        msg,color = self.model.update_contact(old_name, new_name, old_phone, new_phone)
+        self.ui.show_message(msg, color=color)
       finally:
         with self.ui.output:
             clear_output()
