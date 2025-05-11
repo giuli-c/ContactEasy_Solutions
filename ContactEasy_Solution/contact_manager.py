@@ -1,5 +1,4 @@
-import json, csv
-import pandas as pd
+import pandas as pd, io, json
 from IPython.display import display, clear_output
 
 class ContactManager:
@@ -34,28 +33,32 @@ class ContactManager:
     Eliminazione di un contatto.
     Il contatto se trovato viene eliminato dal file json.
     """
+    name = name.strip()
+    phone = phone.strip()
     strkey = ""
-    dictres = self.search(name, phone)
     
+    if name == "" and phone == "":
+        return False, "Specificare il contatto che si desidera eliminare."
+
+    dictres = self.search(name, phone)
+
     if not dictres:
-       return False, f"Contatto '{name}' non trovato."
+       return False, f"Contatto '{name or phone}' non trovato."
 
     if len(dictres) > 1:
-        return False, "Più contatti trovati. Specificare meglio nome e numero."
+        return False, "Più contatti trovati. Specificare nome o numero di telefono."
 
-    if name and phone and name in dictres and dictres[name]==phone:
-         strkey = name
-    elif name and name in dictres and len(dictres) == 1:
-         strkey = name
-    elif phone in dictres.values():
-         key = next((k for k, v in dictres.items() if v == phone), None)
-         strkey = key
+    # C'è un solo contatto e quindi lo recupero
+    key, val = next(iter(dictres.items()))
+    
+    # Verifico che il contatto sia quello desiderato
+    if (not name or name.lower() == key.lower()) and (not phone or phone == val):
+        strkey = key
+    else:
+        return False, "Impossibile determinare quale contatto eliminare."
 
-    if strkey:
-        del self.contacts[strkey]
-        return True, f"Contatto '{strkey}' eliminato."
-
-    return False, "Impossibile determinare quale contatto eliminare."    
+    del self.contacts[strkey]
+    return True, f"Contatto '{strkey}' eliminato."  
   
   def search(self, name="", phone=""):
     """
@@ -95,21 +98,54 @@ class ContactManager:
     """
     return pd.DataFrame(list(self.contacts.items()), columns=["Nome", "Telefono"])
 
-  def save_json(self, path="contacts.json"):
+  def save_file(self, format='json', path=None):
     """
-    Salva i contatti nel file JSON specificato.
-    Il formato è { "Nome": "Telefono", ... }
+    Salva i contatti nel formato specificato.
     """
-    with open(path, 'w') as f:
-        json.dump(self.contacts, f, indent=4)
-
-  def load_json(self, path="contacts.json"):
-    """
-    Carica i contatti da un file JSON.
-    Se il file non esiste, inizializza un dizionario vuoto.
-    """
+    df = self.to_dataframe()
     try:
-        with open(path, 'r') as f:
-            self.contacts = json.load(f)
-    except FileNotFoundError:
-        self.contacts = {}
+        if format == 'json':
+            path = path or "contacts.json"
+            with open(path, 'w') as f:
+                json.dump(self.contacts, f, indent=4)
+
+        elif format == 'csv':
+            path = path or "contacts.csv"
+            df.to_csv(path, index=False)
+
+        elif format == 'xlsx':
+            path = path or "contacts.xlsx"
+            df.to_excel(path, index=False)
+
+        return True, f"Contatti salvati in {format.upper()}."
+
+    except Exception as e:
+        return False, f"Errore durante il salvataggio: {e}"
+
+  def load_file(self, uploaded_file):
+    """
+    Carica i contatti da un file caricato.
+    Supporta: .json, .csv, .xlsx
+    """
+    for filename in uploaded_file:
+        content = uploaded_file[filename]
+
+        try:
+            if filename.endswith('.json'):
+                data = json.loads(content.decode('utf-8'))
+                self.contacts = data
+            elif filename.endswith('.csv'):
+                df = pd.read_csv(io.BytesIO(content))
+                df['nome'] = df['nome'].astype(str).str.strip()
+                df['telefono'] = df['telefono'].astype(str).str.strip()
+                self.contacts = dict(zip(df['nome'], df['telefono']))
+            elif filename.endswith('.xlsx'):
+                df = pd.read_excel(io.BytesIO(content))
+                df['nome'] = df['nome'].astype(str).str.strip()
+                df['telefono'] = df['telefono'].astype(str).str.strip()
+                self.contacts = dict(zip(df['nome'], df['telefono']))
+            else:
+                return False, f"Formato non supportato: {filename}"
+        except Exception as e:
+            return False, f"Errore nel caricamento: {e}"
+    return True, f"Contatti caricati da {filename}"

@@ -2,6 +2,7 @@ import pandas as pd
 from IPython.display import display, clear_output
 from contact_interface import ContactInterface
 from contact_manager import ContactManager
+import io, json
 
 class ContactController:
     """
@@ -11,7 +12,7 @@ class ContactController:
         self.ui = interface
         self.model = manager
         self._connect_events()
-        self.modifycontact = {}
+        self.modifycontact = None
 
     def _connect_events(self):
         self.ui.add_btn.on_click(self.add)
@@ -19,8 +20,11 @@ class ContactController:
         self.ui.search_btn.on_click(self.search)
         self.ui.update_btn.on_click(self.update)
         self.ui.show_btn.on_click(self.show_all)
+        self.ui.save_file_btn.on_click(self.save_to_file)
+        self.ui.load_file_btn.on_click(self.load_from_file)
 
     def add(self, b):
+      try:
         with self.ui.output:
             clear_output()
         self.ui.clear_msg()
@@ -33,8 +37,9 @@ class ContactController:
                 self.ui.show_message(msg)
         else:
             self.ui.show_message("Inserisci nome e telefono", color="red")
-
+      finally:
         self.ui.clear_inputs()
+        self.ui.hide_modify_input() # nascondo la box di modifica se visibile
 
     def delete(self, b):
         try:
@@ -57,8 +62,8 @@ class ContactController:
             with self.ui.output:
                 clear_output()
 
-            self.modifycontact = {}
-        #self.ui.clear_inputs()
+            self.modifycontact = None
+            self.ui.hide_modify_input() # nascondo la box di modifica se visibile
 
     def search(self, b):      
 
@@ -74,46 +79,58 @@ class ContactController:
             clear_output()
             if self.modifycontact:
                 display(pd.DataFrame(self.modifycontact.items(), columns=["Nome", "Telefono"]))
+                if len(self.modifycontact) == 1:
+                    self.ui.show_modify_input()  # mostro i campi per la modifica
+                else:
+                    self.ui.hide_modify_input()
             else:
                 self.ui.show_message("Nessun contatto trovato.")
 
     def update(self, b):
+      try:
         self.ui.clear_msg()
 
         if self.modifycontact and len(self.modifycontact) == 1:
             # Estrai nome e telefono dal primo (unico) contatto
             old_name, old_phone = next(iter(self.modifycontact.items()))
         else:
-            self.ui.show_message("Ricercare un contatto valido.", color="red")
+            self.ui.show_message("Specifica un nome o numero di telefono valido e univoco per poter modificare il contatto.", color="red")
             return
 
-        # Nuovi valori presi dai campi input, altrimenti tieni i vecchi
-        new_name = self.ui.name_input.value.strip() or old_name
-        new_phone = self.ui.phone_input.value.strip() or old_phone
+        new_name = self.ui.new_name_input.value.strip() or old_name
+        new_phone = self.ui.new_phone_input.value.strip() or old_phone
 
-        with self.ui.output:
-            from IPython.display import clear_output
-            clear_output()
-            print(f"old_name type: {type(old_name)} -> {old_name}")
-            print(f"old_phone type: {type(old_phone)} -> {old_phone}")
-            print(f"new_name type: {type(new_name)} -> {new_name}")
-            print(f"new_phone type: {type(new_phone)} -> {new_phone}")
-
-        #msg = self.model.update_contact(old_name, new_name, old_phone, new_phone)
-        
-        #self.ui.show_message(msg)
+        msg = self.model.update_contact(old_name, new_name, old_phone, new_phone)
+        self.ui.show_message(msg)
+      finally:
         with self.ui.output:
             clear_output()
 
-        self.modifycontact = {}
-        #self.ui.clear_inputs()
+        self.modifycontact = None
+        self.ui.clear_inputs()
+        self.ui.hide_modify_input() # nascondo la box di modifica se visibile
 
     def show_all(self, b):
+      try:
         self.ui.clear_msg()
         
         df = self.model.to_dataframe()
-        self.ui.clear_inputs()
-
+      finally:
         with self.ui.output:
             clear_output()
             display(df)
+        self.ui.clear_inputs()
+        self.ui.hide_modify_input() # nascondo la box di modifica se visibile
+
+    def save_to_file(self, b):
+      format_selected = self.ui.save_format.value
+      success, msg = self.model.save_file(format_selected)
+      self.ui.show_message(msg, color="green" if success else "red")    
+    
+    def load_from_file(self, b):
+      # L'import per come è stato gestito può essere usato solo su Google Colab
+      from google.colab import files
+      uploaded = files.upload()
+
+      success, msg = self.model.load_file(uploaded)
+      self.ui.show_message(msg, color="green" if success else "red")
